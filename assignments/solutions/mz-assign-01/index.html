@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Image slider</title>
+    <style>
+        body {
+            margin: 0;
+        }
+        .images img {
+            width: 100%;
+            position: absolute;
+        }
+        a.sliderBtn {
+            position: absolute;
+            color: white;
+            text-decoration: none;
+            z-index: 1;
+            margin-top: 25%;
+        }
+        a.sliderBtn.btnLeft {
+            left: 10px;
+        }
+        a.sliderBtn.btnRight {
+            right: 10px;
+        }
+        .status {
+            position: absolute;
+            color: white;
+            font-family: sans-serif;
+            margin: 10px;
+            z-index: 1;
+        }
+        .show {
+            transition: opacity 400ms;
+        }
+        .hide {
+            opacity: 0;
+        }
+    </style>
+    <script>
+        var currentImageIndex;
+        const specialClamp = (val, max) => val < 0 ? max : val % (max + 1)
+        
+        const toggleClass = (el, addClass, removeClass) => {
+            el.classList.add(addClass)
+            el.classList.remove(removeClass)
+        }
+
+        const updateImages = (change=0) => {
+            images = document.querySelectorAll('.images img')
+            currentImageIndex = specialClamp(currentImageIndex + change, images.length - 1);
+            
+            images.forEach(el => toggleClass(el, 'hide', 'show'))
+            toggleClass(images[currentImageIndex], 'show', 'hide')
+
+            document.querySelector('.status #imgIndex').textContent = currentImageIndex + 1
+            document.querySelector('.status #imgTotal').textContent = images.length
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            currentImageIndex = 0;
+            updateImages()
+        })
+    </script>
+</head>
+<body>
+    <div>
+        <a class="sliderBtn btnLeft" href="javascript:updateImages(-1)">&larr;</a>
+        <a class="sliderBtn btnRight" href="javascript:updateImages(+1)">&rarr;</a>
+        
+        <div class="status">
+            Picture #<span id="imgIndex"></span> of <span id="imgTotal"></span>.
+        </div>
+        <div class="images">
+            <img src="./img/zoltan-tasi-jxhv5E-dCTo-unsplash.jpg" alt="Parliament of Georgia by Zoltan Tasi">
+            <img src="./img/fabe-collage-K-1kKf1upok-unsplash.jpg" alt="PARKING des Célestins, Lyon France by Fabe Collage">
+            <img src="./img/simone-hutsch-Gxtj3HYElQ8-unsplash.jpg" alt="Picture by Simone Hutsch">
+            <img src="./img/anthony-chiado-hHG722NY6vQ-unsplash.jpg" alt="National Gallery of Art, Washington DC, United States by Anthony Chiado">
+        </div>
+    </div>   
+</body>
+</html>

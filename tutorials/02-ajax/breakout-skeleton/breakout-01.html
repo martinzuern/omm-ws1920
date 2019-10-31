@@ -17,8 +17,9 @@
 <script>
 
   function postJSON(url, callback, params) {
-    
-    // TODO create a post request here and handle the response
+    fetch(url, { method: 'POST', body: params})
+      .then(res => res.json())
+      .then(callback);
   }
 
   var form = document.querySelector('form');
