@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script type=module src="https://unpkg.com/@google-web-components/google-chart/google-chart.js?module"></script>
+    <title>Document</title>
+    <script>
+        class AjaxEchoElement extends HTMLElement {
+            constructor () {
+                super();
+                this.addEventListener('x-ajax-success', (e) => {
+                    e.stopPropagation();
+                    const pre = document.createElement('pre');
+                    pre.appendChild(document.createTextNode(JSON.stringify(e.detail.res, null, 4)))
+                    this.appendChild(pre);
+                    
+                    // make the Google Chart display the response's data
+                    print(e.detail.chartData)
+                    const chart = document.createElement('google-chart');
+                    chart.setAttribute('type', 'line')
+                    chart.setAttribute('options', JSON.stringify({title: Object.keys(e.detail.res)[0]}))
+                    chart.setAttribute('data', JSON.stringify(e.detail.chartData))
+                    this.appendChild(chart);
+                }, true);
+            }
+        }
+        customElements.define('x-ajax-echo', AjaxEchoElement);
+
+        class AjaxElement extends HTMLElement {
+
+            static get observedAttributes() { return ['url'] }
+
+            sendRequest() {
+                if (this.hasAttribute('url')) {
+                    const method = this.hasAttribute('method') ? this.getAttribute('method') : 'get';
+                    fetch(this.getAttribute('url'), { method })
+                        .then((res) => res.json())
+                        .then((res) => {
+                            let chartData = Object.values(res)[0]
+                            console.log(chartData)
+                            this.dispatchEvent(new CustomEvent('x-ajax-success', { bubbles: true, detail: {res, chartData }}), true);
+                        });
+                }
+            }
+
+            connectedCallback () {
+                this.sendRequest()
+            }
+
+            attributeChangedCallback(attr, oldVal, newVal)  {
+                this.sendRequest()
+            }
+        }
+        customElements.define('x-ajax', AjaxElement);
+
+        window.onload = function() {
+            document.getElementById('selSemester').addEventListener ("change", function () {
+                document.getElementById('ajax').setAttribute('url', this.value);
+            });
+        };
+        
+    </script>
+</head>
+<body>
+    <select id="selSemester">
+        <option value="https://raw.githubusercontent.com/mimuc/omm-ws1920/master/assignments/04-webcomponents/assignment-statistics-api/ws1617.json">ws1617</option>
+        <option value="https://raw.githubusercontent.com/mimuc/omm-ws1920/master/assignments/04-webcomponents/assignment-statistics-api/ws1718.json">ws1718</option>
+        <option value="https://raw.githubusercontent.com/mimuc/omm-ws1920/master/assignments/04-webcomponents/assignment-statistics-api/ws1819.json" selected>ws1819</option>
+        <option value="https://raw.githubusercontent.com/mimuc/omm-ws1920/master/assignments/04-webcomponents/assignment-statistics-api/ws1920.json">ws1920</option>
+    </select>
+
+    <x-ajax-echo>
+        <x-ajax id='ajax' url="https://raw.githubusercontent.com/mimuc/omm-ws1920/master/assignments/04-webcomponents/assignment-statistics-api/ws1819.json"></x-ajax>
+    </x-ajax-echo>
+</body>
+</html>
